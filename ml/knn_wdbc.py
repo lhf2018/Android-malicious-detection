@@ -6,7 +6,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report
 
-
 def knn():
     df = pd.read_csv('F:\\pycharmproject\\GraduationProject\\data\\svmdata\\wdbc_csv.csv')
     list = df.values
