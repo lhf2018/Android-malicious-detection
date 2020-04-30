@@ -3,20 +3,23 @@
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn import svm
 from sklearn.metrics import classification_report
 
 
 def svm1():
-    df = pd.read_csv('F:\\pycharmproject\\GraduationProject\\data\\feature_data.csv')
+    df = pd.read_csv('F:\\pycharmproject\\GraduationProject\\data\\feature_data_statistic_csv.csv')
     list = df.values
     X = list[:, 0:190]  # 取数据集的特征向量
     Y = list[:, 191]  # 取数据集的标签（类型）
-    # print(Y)
-    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.8, random_state=1)
+    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.9, random_state=1)
+    # ss = StandardScaler()
+    # x_train = ss.fit_transform(x_train)
+    # x_test = ss.transform(x_test)
     # SVM 分类器
-    clf = svm.SVC(C=0.8, kernel='rbf',gamma=10, decision_function_shape='ovo')
+    clf = svm.SVC(C=0.8, kernel='linear',gamma=20, decision_function_shape='ovr')
     clf.fit(x_train, y_train)
     y_predict=clf.predict(x_test)
     # print("The scores of train set is %f" % (clf.score(x_train, y_train)))  # 训练集准确率
