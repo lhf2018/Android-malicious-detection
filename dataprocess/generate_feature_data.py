@@ -17,19 +17,19 @@ def move_abnormal_file(file_2):
 
 
 file_feature=open("F:\\pycharmproject\\GraduationProject\\data\\feature1.txt",mode='r')
-file_data=open("F:\\pycharmproject\\GraduationProject\\data\\feature_data.txt",mode='a')
+file_data=open("F:\\pycharmproject\\GraduationProject\\data\\feature_data_statistic.txt",mode='a')
 list=dict()
 i=0
 for line in file_feature.readlines():
     list[line.strip()]=i
     i+=1
 
-path="E:\\研究生\\毕业设计\\安卓恶意软件数据集\\Strace_OmniDroid_V2\\新建文件夹\\abnormal"
+path="E:\\研究生\\毕业设计\\安卓恶意软件数据集\\Strace_OmniDroid_V2\\新建文件夹\\normal"
 files = os.listdir(path)
 for file1 in files:
     # file_normal = open("E:\\研究生\\毕业设计\\安卓恶意软件数据集\\Strace_OmniDroid_V2\\新建文件夹\\normal\\" + file1,"rb")
     # print(chardet.detect(file_normal.read()))
-    df=pd.read_csv("E:\\研究生\\毕业设计\\安卓恶意软件数据集\\Strace_OmniDroid_V2\\新建文件夹\\abnormal\\"+file1
+    df=pd.read_csv("E:\\研究生\\毕业设计\\安卓恶意软件数据集\\Strace_OmniDroid_V2\\新建文件夹\\normal\\"+file1
                    ,delimiter="\t", encoding = 'ISO-8859-1', engine='python')
     # file_normal = open("E:\\研究生\\毕业设计\\安卓恶意软件数据集\\Strace_OmniDroid_V2\\新建文件夹\\normal\\"+file1
     #                    , mode='r',encoding='GBK')
@@ -50,12 +50,12 @@ for file1 in files:
         # print(ll[:num1])
         if(list.get(ll[:num1])==None):
             print(ll[:num1])
-        statistics[list.get(ll[:num1])]=1
+        statistics[list.get(ll[:num1])]+=1
         # print(ll[:num1])
     s = ""
     for item in statistics:
         s += str(item) + " "
-    s += "2"
+    s += "1"
     s+='\n'
     file_data.write(s)
-    move_abnormal_file(file1)
+    move_normal_file(file1)
