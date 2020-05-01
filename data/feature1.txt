@@ -190,3 +190,4 @@ eventfd2
 pipe2
 ARM_cacheflush
 ARM_set_tls
+pciconfig_iobase
