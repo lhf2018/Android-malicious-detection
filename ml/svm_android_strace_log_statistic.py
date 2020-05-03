@@ -10,16 +10,16 @@ from sklearn.metrics import classification_report
 
 
 def svm1():
-    df = pd.read_csv('F:\\pycharmproject\\GraduationProject\\data\\feature_data_statistic_csv.csv')
+    df = pd.read_csv('F:\\pycharmproject\\GraduationProject\\data\\feature_data_new_statistic_part.csv')
     list = df.values
-    X = list[:, 0:190]  # 取数据集的特征向量
-    Y = list[:, 191]  # 取数据集的标签（类型）
-    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.9, random_state=1)
-    # ss = StandardScaler()
-    # x_train = ss.fit_transform(x_train)
-    # x_test = ss.transform(x_test)
+    X = list[:, 0:191]  # 取数据集的特征向量
+    Y = list[:, 192]  # 取数据集的标签（类型）
+    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.8, random_state=1)
+    ss = StandardScaler()
+    x_train = ss.fit_transform(x_train)
+    x_test = ss.transform(x_test)
     # SVM 分类器
-    clf = svm.SVC(C=0.8, kernel='linear',gamma=20, decision_function_shape='ovr')
+    clf = svm.SVC(C=0.8, kernel='linear',gamma=20, decision_function_shape='ovr',max_iter=-1)
     clf.fit(x_train, y_train)
     y_predict=clf.predict(x_test)
     # print("The scores of train set is %f" % (clf.score(x_train, y_train)))  # 训练集准确率

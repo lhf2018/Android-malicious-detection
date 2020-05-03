@@ -7,11 +7,11 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report
 
 def knn():
-    df = pd.read_csv('F:\\pycharmproject\\GraduationProject\\data\\feature_data_statistic_csv.csv')
+    df = pd.read_csv('F:\\pycharmproject\\GraduationProject\\data\\feature_data_new_statistic_part.csv')
     list = df.values
     # print(df)
-    X = list[:, 0:190]  # 取数据集的特征向量
-    Y = list[:, 191]  # 取数据集的标签（类型）
+    X = list[:, 0:191]  # 取数据集的特征向量
+    Y = list[:, 192]  # 取数据集的标签（类型）
     x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.8, random_state=1)
     # 使用knn
     ss = StandardScaler()
