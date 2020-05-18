@@ -1,5 +1,5 @@
-# 使用卡方过滤对knn算法来实现android strace log日志数据集的分类
-# 使用matplotlib绘制验证曲线（n_neighbors）
+# 使用卡方过滤对svm算法来实现android strace log日志数据集的分类
+# 使用matplotlib绘制验证曲线（C、gamma）
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -10,6 +10,7 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import StandardScaler
+from sklearn import svm
 from sklearn.model_selection import learning_curve
 from sklearn.model_selection import validation_curve
 
@@ -23,32 +24,23 @@ def knn():
     # 使用卡方过滤
     model1 = SelectKBest(chi2, k=60)  # 60结果还不错
     X = model1.fit_transform(X, Y)
-    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.8, random_state=1)
-    # 使用knn
+    # 使用标准化
     ss = StandardScaler()
-    x_train = ss.fit_transform(x_train)
-    x_test = ss.transform(x_test)
-    knc = KNeighborsClassifier(n_neighbors=5, metric='manhattan')
-    knc.fit(x_train, y_train)
-    y_predict = knc.predict(x_test)
-    # print(knc.score(x_test,y_test))
-    # print(knc.score(x_train,y_train))
-    print(classification_report(y_predict, y_test))
+    X = ss.fit_transform(X)
     # 绘制图像
-    param_range = np.arange(1, 100, 10)
-    train_scores, test_scores = validation_curve(KNeighborsClassifier(metric='minkowski')
-                                                 , X, Y, param_name="n_neighbors", param_range=param_range, cv=10)
+    param_range = np.arange(0.1, 1, 0.1)
+    train_scores, test_scores = validation_curve(svm.SVC(gamma=20,kernel='rbf', decision_function_shape='ovo',max_iter=-1)
+                                                 , X, Y, param_name="C", param_range=param_range, cv=10)
     train_scores_mean = np.mean(train_scores, axis=1)
     train_scores_std = np.std(train_scores, axis=1)
     test_scores_mean = np.mean(test_scores, axis=1)
     test_scores_std = np.std(test_scores, axis=1)
-
-    plt.title("Validation Curve with KNN")
+    plt.title("Validation Curve with SVM")
     plt.xlabel("$\gamma$")
     plt.ylabel("Score")
-    plt.xlabel("n_neighbors")
+    plt.xlabel("惩罚系数C")
     plt.ylim(0.0, 1.1)
-    plt.xticks(np.arange(0, 100, 10))
+    plt.xticks(np.arange(0.1, 1, 0.1))
     lw = 2
     # 半对数坐标函数：只有一个坐标轴是对数坐标，另一个是普通算术坐标
     # plt.semilogx(param_range, train_scores_mean, label="Training score",
