@@ -2,17 +2,13 @@
 # 使用matplotlib绘制验证曲线（alpha、hidden_layer_size）
 
 import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
+import pandas as pd
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
-from sklearn.metrics import classification_report
-from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.preprocessing import StandardScaler
-from sklearn.neural_network import MLPClassifier
-from sklearn.model_selection import learning_curve
 from sklearn.model_selection import validation_curve
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import StandardScaler
 
 
 def knn():
@@ -30,13 +26,13 @@ def knn():
     # 绘制图像
     # param_range = np.arange(1, 11, 1)
     param_range1 = np.arange(1, 11, 1)
-    param_range=((1,),(2,),(3,),(4,),(5,),(6,),(7,),(8,),(9,),(10,))
+    param_range = ((1,), (2,), (3,), (4,), (5,), (6,), (7,), (8,), (9,), (10,))
     # param_range = np.logspace(-6,-4 ,10)
     train_scores, test_scores = validation_curve(
         MLPClassifier(solver='lbfgs',
                       alpha=1e-5,
-                      random_state=1,max_iter=100000)
-        ,X, Y, param_name="hidden_layer_sizes",
+                      random_state=1, max_iter=100000)
+        , X, Y, param_name="hidden_layer_sizes",
         param_range=param_range, cv=10)
     train_scores_mean = np.mean(train_scores, axis=1)
     train_scores_std = np.std(train_scores, axis=1)

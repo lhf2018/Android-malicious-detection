@@ -1,0 +1,15 @@
+目前最好是
+xgbr = xgb.XGBClassifier(n_estimators=500)
+
+结果
+    precision    recall  f1-score   support
+
+1    0.86486   0.84819   0.85645       415
+2    0.85517   0.87119   0.86311       427
+
+xgbr = xgb.XGBClassifier(n_estimators=500,scale_pos_weight=1)
+==========start============
+  precision    recall  f1-score   support
+
+1    0.90104   0.80093   0.84804       216
+2    0.82800   0.91593   0.86975       226
