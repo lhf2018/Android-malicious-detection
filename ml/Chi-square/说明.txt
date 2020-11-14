@@ -13,3 +13,15 @@ xgbr = xgb.XGBClassifier(n_estimators=500,scale_pos_weight=1)
 
 1    0.90104   0.80093   0.84804       216
 2    0.82800   0.91593   0.86975       226
+
+xgbr = xgb.XGBClassifier(n_estimators=500,scale_pos_weight=2,max_depth=10,min_child_weight=5)
+  precision    recall  f1-score   support
+
+1    0.85787   0.86667   0.86224       195
+2    0.88393   0.87611   0.88000       226
+
+gbm = lgb.LGBMClassifier(num_leaves=31, learning_rate=0.05, n_estimators=2000)
+  precision    recall  f1-score   support
+
+1    0.88325   0.85714   0.87000       203
+2    0.87054   0.89450   0.88235       218

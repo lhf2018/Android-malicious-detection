@@ -1,8 +1,8 @@
-# 使用卡方过滤对xgb算法来实现android strace log日志数据集的分类
+# 使用卡方过滤对GBDT算法来实现android strace log日志数据集的分类
 # 使用matplotlib绘制验证曲线（n_neighbors）
 
 import pandas as pd
-import xgboost as xgb
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 from sklearn.metrics import classification_report
@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 
-def xgb1():
+def ml():
     df = pd.read_csv('F:\\pycharmproject\\GraduationProject\\data\\feature_data_new_statistic_part.csv')
     list = df.values
     # print(df)
@@ -19,16 +19,15 @@ def xgb1():
     # 使用卡方过滤
     model1 = SelectKBest(chi2, k=60)  # 60结果还不错
     X = model1.fit_transform(X, Y)
-    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.9, random_state=1)
+    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.8, random_state=0)
     # 使用xgb
     ss = StandardScaler()
     x_train = ss.fit_transform(x_train)
     x_test = ss.transform(x_test)
     print("==========start============")
-
-    xgbr = xgb.XGBClassifier(n_estimators=500,scale_pos_weight=2,max_depth=10,min_child_weight=5,gamma=8)
-    xgbr.fit(x_train, y_train)
-    y_predict = xgbr.predict(x_test)
+    gbr = GradientBoostingClassifier(n_estimators=3000, max_depth=2, min_samples_split=2, learning_rate=0.1)
+    gbr.fit(x_train, y_train)
+    y_predict = gbr.predict(x_test)
     print(classification_report(y_predict, y_test,digits=5))
     # print(xgbr.score(x_test,y_test))
     print("==========end============")
@@ -68,4 +67,4 @@ def xgb1():
 
 
 if __name__ == "__main__":
-    xgb1()
+    ml()

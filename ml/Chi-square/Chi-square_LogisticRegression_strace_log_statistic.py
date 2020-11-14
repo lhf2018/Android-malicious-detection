@@ -1,17 +1,17 @@
-# 使用卡方过滤对xgb算法来实现android strace log日志数据集的分类
+# 使用卡方过滤对逻辑回归算法来实现android strace log日志数据集的分类
 # 使用matplotlib绘制验证曲线（n_neighbors）
 
 import pandas as pd
-import xgboost as xgb
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 
 def xgb1():
-    df = pd.read_csv('F:\\pycharmproject\\GraduationProject\\data\\feature_data_new_statistic_part.csv')
+    df = pd.read_csv('F:\\pycharmproject\\GraduationProject\\data\\feature_data_new_statistic_csv.csv')
     list = df.values
     # print(df)
     X = list[:, 0:191]  # 取数据集的特征向量
@@ -25,10 +25,9 @@ def xgb1():
     x_train = ss.fit_transform(x_train)
     x_test = ss.transform(x_test)
     print("==========start============")
-
-    xgbr = xgb.XGBClassifier(n_estimators=500,scale_pos_weight=2,max_depth=10,min_child_weight=5,gamma=8)
-    xgbr.fit(x_train, y_train)
-    y_predict = xgbr.predict(x_test)
+    lr = LogisticRegression(C=1.0, tol=0.01)
+    lr.fit(x_train, y_train)
+    y_predict = lr.predict(x_test)
     print(classification_report(y_predict, y_test,digits=5))
     # print(xgbr.score(x_test,y_test))
     print("==========end============")
