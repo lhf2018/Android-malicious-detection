@@ -19,18 +19,19 @@ def xgb1():
     # 使用卡方过滤
     model1 = SelectKBest(chi2, k=60)  # 60结果还不错
     X = model1.fit_transform(X, Y)
-    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.9, random_state=1)
+    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.75, random_state=0)
     # 使用xgb
     ss = StandardScaler()
     x_train = ss.fit_transform(x_train)
     x_test = ss.transform(x_test)
     print("==========start============")
 
-    xgbr = xgb.XGBClassifier(n_estimators=500,scale_pos_weight=2,max_depth=10,min_child_weight=5,gamma=8)
-    xgbr.fit(x_train, y_train)
+    xgbr = xgb.XGBClassifier(n_estimators=3000,scale_pos_weight=2,max_depth=10,min_child_weight=5)
+    model=xgbr.fit(x_train, y_train)
     y_predict = xgbr.predict(x_test)
     print(classification_report(y_predict, y_test,digits=5))
-    # print(xgbr.score(x_test,y_test))
+    # xgb.plot_importance(model,height=0.5,max_num_features=25)
+    # plt.show()
     print("==========end============")
     # 绘制图像
     # param_range = np.arange(1, 100, 10)

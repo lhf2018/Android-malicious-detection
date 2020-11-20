@@ -31,3 +31,13 @@ gbm = lgb.LGBMClassifier(num_leaves=50, learning_rate=0.05, n_estimators=5000)
 
 1    0.91878   0.86190   0.88943       210
 2    0.87054   0.92417   0.89655       211
+
+gbm = lgb.LGBMClassifier(num_leaves=50, learning_rate=0.05, n_estimators=200)
+              precision    recall  f1-score   support
+
+        -1.0    0.92063   0.88346   0.90166      2823
+         1.0    0.88212   0.91969   0.90051      2677
+
+    accuracy                        0.90109      5500
+   macro avg    0.90138   0.90157   0.90109      5500
+weighted avg    0.90189   0.90109   0.90110      5500
