@@ -1,7 +1,7 @@
 import datetime
 starttime = datetime.datetime.now()
 #long running
-for i in range(1,100000):
+for i in range(1,100000000):
     continue
 #do something other
 endtime = datetime.datetime.now()
