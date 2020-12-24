@@ -1,12 +1,12 @@
-# 使用卡方过滤对lgb算法来实现features_file_ml7_generate数据集的分类
+# 使用卡方过滤对knn算法来实现features_file_ml7_generate数据集的分类
 # 使用matplotlib绘制验证曲线（n_neighbors）
 
 import datetime
 
-import lightgbm as lgb
 import pandas as pd
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import BernoulliNB
 from sklearn.preprocessing import StandardScaler
 
 
@@ -26,9 +26,9 @@ def ml():
     x_train = ss.fit_transform(x_train)
     x_test = ss.transform(x_test)
     print("==========start============")
-    gbm = lgb.LGBMClassifier(num_leaves=50, learning_rate=0.02, n_estimators=2000)
-    gbm.fit(x_train, y_train)
-    y_predict = gbm.predict(x_test)
+    clf = BernoulliNB()
+    clf.fit(x_train, y_train)
+    y_predict = clf.predict(x_test)
     print(classification_report(y_predict, y_test,digits=5))
     # print(gbm.score(x_test,y_test))
     print("==========end============")

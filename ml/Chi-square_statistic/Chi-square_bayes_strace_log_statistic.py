@@ -26,12 +26,9 @@ def ml():
     x_test = ss.transform(x_test)
     print("==========start============")
     clf = BernoulliNB()
-    print(x_train)
     clf.fit(x_train, y_train)
-    print("===========mid================")
     y_predict = clf.predict(x_test)
     print(classification_report(y_predict, y_test,digits=5))
-    # print(xgbr.score(x_test,y_test))
     print("==========end============")
     # 绘制图像
     # param_range = np.arange(1, 100, 10)

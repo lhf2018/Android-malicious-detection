@@ -3,22 +3,20 @@ import numpy as np
 import pandas as pd
 import xgboost as xgb
 from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.feature_selection import SelectKBest
-from sklearn.feature_selection import chi2
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 
 def knn():
-    df = pd.read_csv('F:\\pycharmproject\\GraduationProject\\data\\feature_data_new_statistic_part.csv')
+    df = pd.read_csv('H:\\A数据集\\others\\ring - 副本.csv')
     list = df.values
     # print(df)
-    X = list[:, 0:191]  # 取数据集的特征向量
-    Y = list[:, 192]  # 取数据集的标签（类型）
+    X = list[:, 0:19]  # 取数据集的特征向量
+    Y = list[:, 20]  # 取数据集的标签（类型）
     # 使用卡方gbdt_lgb_xgb.py过滤
-    model1 = SelectKBest(chi2, k=60)  # 60结果还不错
-    X = model1.fit_transform(X, Y)
+    # model1 = SelectKBest(chi2, k=60)  # 60结果还不错
+    # X = model1.fit_transform(X, Y)
     # 使用标准化
     ss = StandardScaler()
     X = ss.fit_transform(X)
@@ -37,10 +35,10 @@ def knn():
     y_predict3 = gbr.predict(x_test)
     y_predict4=np.array(y_predict1+y_predict2+y_predict3).tolist()
     for i, val in enumerate(y_predict4):
-        if val<=4:
-            y_predict4[i]=1
+        if val<2:
+            y_predict4[i]=0
         else:
-            y_predict4[i]=2
+            y_predict4[i]=1
     print(classification_report(np.array(y_predict4), y_test, digits=5))
 
 

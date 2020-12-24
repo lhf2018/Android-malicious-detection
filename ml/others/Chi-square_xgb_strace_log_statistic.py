@@ -9,11 +9,11 @@ from sklearn.preprocessing import StandardScaler
 
 
 def xgb1():
-    df = pd.read_csv('H:\\A数据集\\others\\Swarm Behavior Data\\Swarm Behavior Data\\Aligned.csv')
+    df = pd.read_csv('H:\\A数据集\\others\\ring - 副本.csv')
     list = df.values
     # print(df)
-    X = list[1:, 0:2399]  # 取数据集的特征向量
-    Y = list[1:, 2400]  # 取数据集的标签（类型）
+    X = list[:, 0:19]  # 取数据集的特征向量
+    Y = list[:, 20]  # 取数据集的标签（类型）
     # 使用卡方过滤
     # model1 = SelectKBest(chi2, k=60)  # 60结果还不错
     # X = model1.fit_transform(X, Y)
