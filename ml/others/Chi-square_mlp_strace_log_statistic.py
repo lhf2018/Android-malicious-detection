@@ -1,15 +1,15 @@
-# 使用卡方过滤对lgb算法来实现features_file_ml7_generate数据集的分类
+# 使用卡方过滤对knn算法来实现features_file_ml7_generate数据集的分类
 # 使用matplotlib绘制验证曲线（n_neighbors）
 
 import datetime
 
-import lightgbm as lgb
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import validation_curve
+from sklearn.neural_network import MLPClassifier
 from sklearn.preprocessing import StandardScaler
 
 
@@ -29,27 +29,27 @@ def ml():
     x_train = ss.fit_transform(x_train)
     x_test = ss.transform(x_test)
     print("==========start============")
-    # gbm = lgb.LGBMClassifier(num_leaves=50, learning_rate=0.02, n_estimators=50)
-    gbm = lgb.LGBMClassifier(num_leaves=50, learning_rate=0.02, n_estimators=50)
-    gbm.fit(x_train, y_train)
-    y_predict = gbm.predict(x_test)
+    mlp = MLPClassifier(solver='sgd',max_iter=1000,learning_rate='constant')
+    # mlp = MLPClassifier(solver='lbfgs', alpha=1e-5, random_state=1, max_iter=1000)
+    mlp.fit(x_train, y_train)
+    y_predict = mlp.predict(x_test)
     print(classification_report(y_predict, y_test,digits=5))
     # print(gbm.score(x_test,y_test))
     print("==========end============")
     endtime = datetime.datetime.now()
     print(endtime - starttime)
     # 绘制图像
-    param_range = np.arange(0, 100, 10)
-    train_scores, test_scores = validation_curve(gbm, X, Y,param_name='lambda_l1', param_range=param_range, cv=10)
+    param_range = np.arange(0.1, 0.99, 0.1)
+    train_scores, test_scores = validation_curve(mlp, X, Y,param_name='beta_2', param_range=param_range, cv=10)
     train_scores_mean = np.mean(train_scores, axis=1)
     train_scores_std = np.std(train_scores, axis=1)
     test_scores_mean = np.mean(test_scores, axis=1)
     test_scores_std = np.std(test_scores, axis=1)
 
-    plt.title("Validation Curve with LGBM")
+    plt.title("Validation Curve with MLP")
     plt.xlabel("$\gamma$")
     plt.ylabel("Score")
-    plt.xlabel("lambda_l1")
+    plt.xlabel("beta_2")
     plt.ylim(0.0, 1.1)
     plt.xticks(param_range)
     lw = 2
@@ -59,18 +59,19 @@ def ml():
     plt.plot(param_range, train_scores_mean, label="Training score",
              color="darkorange", lw=lw)
     # 在区域内绘制函数包围的区域
-    plt.fill_between(param_range, train_scores_mean - train_scores_std,
-                     train_scores_mean + train_scores_std, alpha=0.2,
-                     color="darkorange", lw=lw)
+    # plt.fill_between(param_range, train_scores_mean - train_scores_std,
+    #                  train_scores_mean + train_scores_std, alpha=0.2,
+    #                  color="darkorange", lw=lw)
     # plt.semilogx(param_range, test_scores_mean, label="Cross-validation score",
     #              color="navy", lw=lw)
     plt.plot(param_range, test_scores_mean, label="Cross-validation score",
              color="navy", lw=lw)
-    plt.fill_between(param_range, test_scores_mean - test_scores_std,
-                     test_scores_mean + test_scores_std, alpha=0.2,
-                     color="navy", lw=lw)
+    # plt.fill_between(param_range, test_scores_mean - test_scores_std,
+    #                  test_scores_mean + test_scores_std, alpha=0.2,
+    #                  color="navy", lw=lw)
     plt.legend(loc="best")
     plt.show()
+
 
 if __name__ == "__main__":
     ml()

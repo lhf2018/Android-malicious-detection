@@ -2,36 +2,33 @@
 # 使用matplotlib绘制验证曲线（n_neighbors）
 
 import lightgbm as lgb
-import matplotlib.pylab as plt
 import pandas as pd
-from sklearn.feature_selection import SelectKBest
-from sklearn.feature_selection import chi2
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 
 def ml():
-    df = pd.read_csv('F:\\pycharmproject\\GraduationProject\\data\\feature_data_new_statistic_part.csv')
+    df = pd.read_csv('F:\\pycharmproject\\GraduationProject\\data\\feature_data_new_statistic_csv.csv')
     list = df.values
     # print(df)
     X = list[:, 0:191]  # 取数据集的特征向量 X = list[:, 1:4805]
     Y = list[:, 192]  # 取数据集的标签（类型）Y = list[:, 0]
     # 使用卡方过滤
-    model1 = SelectKBest(chi2, k=50)  # 60结果还不错
-    X = model1.fit_transform(X, Y)
-    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.8, random_state=1)
+    # model1 = SelectKBest(chi2, k=50)  # 60结果还不错
+    # X = model1.fit_transform(X, Y)
+    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.75, random_state=1)
     # 使用xgb
     ss = StandardScaler()
     x_train = ss.fit_transform(x_train)
     x_test = ss.transform(x_test)
     print("==========start============")
-    gbm = lgb.LGBMClassifier(num_leaves=50, learning_rate=0.01, n_estimators=5000)
+    gbm = lgb.LGBMClassifier(num_leaves=50, learning_rate=0.03, n_estimators=500)
     model=gbm.fit(x_train, y_train)
     y_predict = gbm.predict(x_test)
     print(classification_report(y_predict, y_test,digits=5))
-    lgb.plot_importance(model, height=0.5)
-    plt.show()
+    # lgb.plot_importance(model, height=0.5)
+    # plt.show()
     print("==========end============")
     # 绘制图像
     # param_range = np.arange(1, 100, 10)
