@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from sklearn.metrics import classification_report
+from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import roc_curve, auc
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import validation_curve
 from sklearn.neural_network import MLPClassifier
@@ -23,21 +25,43 @@ def ml():
     # 使用卡方过滤
     # model1 = SelectKBest(chi2, k=2000)  # 60结果还不错
     # X = model1.fit_transform(X, Y)
-    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.75, random_state=0)
+    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.75, random_state=2)
     # 使用xgb
     ss = StandardScaler()
     x_train = ss.fit_transform(x_train)
     x_test = ss.transform(x_test)
     print("==========start============")
-    mlp = MLPClassifier(solver='sgd',max_iter=1000,learning_rate='constant')
+    mlp = MLPClassifier(hidden_layer_sizes=(500,500,500,500),solver='sgd',momentum=0.8,validation_fraction=0.3,beta_1=0.4,beta_2=0.5,max_iter=3500,tol=0.00025,learning_rate='constant',alpha=0.002)
     # mlp = MLPClassifier(solver='lbfgs', alpha=1e-5, random_state=1, max_iter=1000)
     mlp.fit(x_train, y_train)
     y_predict = mlp.predict(x_test)
     print(classification_report(y_predict, y_test,digits=5))
     # print(gbm.score(x_test,y_test))
+    y_proba = mlp.predict_proba(x_test)
     print("==========end============")
     endtime = datetime.datetime.now()
     print(endtime - starttime)
+    return
+    # 绘制PR曲线
+    precision, recall, thresholds = precision_recall_curve(
+        y_test, y_proba[:, 1])
+    plt.figure("P-R Curve")
+    plt.title('Precision/Recall Curve')
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.plot(recall, precision)
+    plt.show()
+    ##绘制roc曲线
+    plt.figure("ROC Curve")
+    fpr, tpr, threshold = roc_curve(y_test, y_proba[:, 1])
+    plt.plot(fpr, tpr, color='darkorange')
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.xlabel('False positive rate')
+    plt.ylabel('True positive rate')
+    roc_auc = auc(fpr, tpr)
+    print(roc_auc)
+    plt.show()
+    return
     # 绘制图像
     param_range = np.arange(0.1, 0.99, 0.1)
     train_scores, test_scores = validation_curve(mlp, X, Y,param_name='beta_2', param_range=param_range, cv=10)
