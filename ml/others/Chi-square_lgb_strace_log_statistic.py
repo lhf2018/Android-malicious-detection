@@ -7,6 +7,7 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from sklearn.metrics import classification_report
 from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import roc_curve, auc
 from sklearn.model_selection import train_test_split
@@ -24,7 +25,7 @@ def ml():
     # 使用卡方过滤
     # model1 = SelectKBest(chi2, k=2000)  # 60结果还不错
     # X = model1.fit_transform(X, Y)
-    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.75, random_state=0)
+    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.75, random_state=4)
     # 使用xgb
     ss = StandardScaler()
     x_train = ss.fit_transform(x_train)
@@ -36,13 +37,14 @@ def ml():
     gbm = lgb.LGBMClassifier(feature_fraction=0.4,min_sum_hessian_in_leaf=1,lambda_l1=0.1,
                              min_data_in_leaf=1,max_depth=1,num_iteration=300,num_leaves=100, learning_rate=0.2, n_estimators=300)
     gbm.fit(x_train, y_train)
-    # y_predict = gbm.predict(x_test)
+    y_predict = gbm.predict(x_test)
     y_proba = gbm.predict_proba(x_test)
-    # print(classification_report(y_predict, y_test,digits=5))
+    print(classification_report(y_predict, y_test,digits=5))
     # print(gbm.score(x_test,y_test))
     print("==========end============")
     endtime = datetime.datetime.now()
     print(endtime - starttime)
+    return
     # 绘制PR曲线
     precision, recall, thresholds = precision_recall_curve(
         y_test, y_proba[:, 1])

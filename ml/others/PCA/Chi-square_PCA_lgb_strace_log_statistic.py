@@ -1,19 +1,23 @@
-# 使用卡方过滤对xgb算法来实现android strace log日志数据集的分类
-# 使用matplotlib绘制验证曲线
+# 使用卡方过滤对lgb算法来实现features_file_ml7_generate数据集的分类
+# 使用matplotlib绘制验证曲线（n_neighbors）
+
 import datetime
 
+import lightgbm as lgb
 import numpy as np
 import pandas as pd
-import xgboost as xgb
 from matplotlib import pyplot as plt
+from sklearn.decomposition import PCA
+from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
+from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import roc_curve, auc
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import validation_curve
 from sklearn.preprocessing import StandardScaler
 
 
-def xgb1():
+def ml():
     starttime = datetime.datetime.now()
     df = pd.read_csv('H:\\A数据集\\others\\ring - 副本.csv')
     list = df.values
@@ -21,7 +25,7 @@ def xgb1():
     X = list[:, 0:19]  # 取数据集的特征向量
     Y = list[:, 20]  # 取数据集的标签（类型）
     # 使用卡方过滤
-    # model1 = SelectKBest(chi2, k=60)  # 60结果还不错
+    # model1 = SelectKBest(chi2, k=2000)  # 60结果还不错
     # X = model1.fit_transform(X, Y)
     x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.75, random_state=4)
     # 使用xgb
@@ -29,30 +33,56 @@ def xgb1():
     x_train = ss.fit_transform(x_train)
     x_test = ss.transform(x_test)
     print("==========start============")
+    # gbm = lgb.LGBMClassifier(num_leaves=50, learning_rate=0.02, n_estimators=50)
+    # gbm = lgb.LGBMClassifier(feature_fraction=0.4,min_sum_hessian_in_leaf=1,lambda_l1=0.1,
+    #                          min_data_in_leaf=1,max_depth=1,num_iteration=300,num_leaves=100, learning_rate=0.2, n_estimators=300)
+    gbm = lgb.LGBMClassifier(feature_fraction=0.4,min_sum_hessian_in_leaf=1,lambda_l1=0.1,
+                             min_data_in_leaf=1,max_depth=1,num_iterations=300,num_leaves=100, learning_rate=0.2, n_estimators=300)
+    # PCA
+    estimator = PCA(n_components=19)
+    x_train = estimator.fit_transform(x_train)
+    x_test = estimator.transform(x_test)
 
-    # xgbr = xgb.XGBClassifier(n_estimators=800,learning_rate=0.2,min_child_weight=1,max_depth=8,gamma=1,colsample_bytree=0.5,scale_pos_weight=1)
-    xgbr=xgb.XGBModel(n_estimators=800,learning_rate=0.2,min_child_weight=1,max_depth=8
-                      ,gamma=1,colsample_bytree=0.5,scale_pos_weight=1)
-    xgbr.fit(x_train, y_train)
-    y_predict = xgbr.predict(x_test)
+    gbm.fit(x_train, y_train)
+    y_predict = gbm.predict(x_test)
+    y_proba = gbm.predict_proba(x_test)
     print(classification_report(y_predict, y_test,digits=5))
-    # print(xgbr.score(x_test,y_test))
-    # precision, recall, thresholds = precision_recall_curve(
-    # y_test, y_predict)
-    # plt.figure("P-R Curve")
-    # plt.title('Precision/Recall Curve')
-    # plt.xlabel('Recall')
-    # plt.ylabel('Precision')
-    # plt.plot(recall, precision)
-    # plt.show()
+    # print(gbm.score(x_test,y_test))
+    print("==========end============")
     endtime = datetime.datetime.now()
     print(endtime - starttime)
-    print("==========end============")
     return
-    print()
+    for index in range(1,20):
+        # if index<103:
+        #     index+=1
+        #     continue
+        # select features using threshold
+        estimator = PCA(n_components=index)
+        select_X_train = estimator.fit_transform(x_train)
+        # train model
+        selection_model = lgb.LGBMClassifier(feature_fraction=0.4,min_sum_hessian_in_leaf=1,lambda_l1=0.1,
+                             min_data_in_leaf=1,max_depth=1,num_iterations=300,
+                            num_leaves=100, learning_rate=0.2, n_estimators=300)
+        selection_model.fit(select_X_train, y_train)
+        # eval model
+        select_X_test = estimator.transform(x_test)
+        y_pred = selection_model.predict(select_X_test)
+        # predictions = [round(value) for value in y_pred]
+        accuracy = accuracy_score(y_test, y_pred)
+        print("n=%d, Accuracy: %.4f%%" % (index, accuracy * 100.0))
+    return
+    # 绘制PR曲线
+    precision, recall, thresholds = precision_recall_curve(
+        y_test, y_proba[:, 1])
+    plt.figure("P-R Curve")
+    plt.title('Precision/Recall Curve')
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.plot(recall, precision)
+    plt.show()
     ##绘制roc曲线
     plt.figure("ROC Curve")
-    fpr, tpr, threshold = roc_curve(y_test, y_predict)
+    fpr, tpr, threshold = roc_curve(y_test, y_proba[:, 1])
     plt.plot(fpr, tpr, color='darkorange')
     plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
     plt.xlabel('False positive rate')
@@ -60,19 +90,19 @@ def xgb1():
     roc_auc = auc(fpr, tpr)
     print(roc_auc)
     plt.show()
-    return
     # 绘制图像
-    param_range = np.arange(0, 5, 0.5)
-    train_scores, test_scores = validation_curve(xgbr, X, Y,param_name='scale_pos_weight', param_range=param_range, cv=10)
+    return
+    param_range = np.arange(0, 100, 10)
+    train_scores, test_scores = validation_curve(gbm, X, Y,param_name='lambda_l1', param_range=param_range, cv=10)
     train_scores_mean = np.mean(train_scores, axis=1)
     train_scores_std = np.std(train_scores, axis=1)
     test_scores_mean = np.mean(test_scores, axis=1)
     test_scores_std = np.std(test_scores, axis=1)
 
-    plt.title("Validation Curve with XGBOOST")
+    plt.title("Validation Curve with LGBM")
     plt.xlabel("$\gamma$")
     plt.ylabel("Score")
-    plt.xlabel("scale_pos_weight")
+    plt.xlabel("lambda_l1")
     plt.ylim(0.0, 1.1)
     plt.xticks(param_range)
     lw = 2
@@ -95,6 +125,5 @@ def xgb1():
     plt.legend(loc="best")
     plt.show()
 
-
 if __name__ == "__main__":
-    xgb1()
+    ml()

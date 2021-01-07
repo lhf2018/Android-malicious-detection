@@ -6,6 +6,9 @@ import numpy as np
 import pandas as pd
 import xgboost as xgb
 from matplotlib import pyplot as plt
+from numpy import sort
+from sklearn.feature_selection import SelectFromModel
+from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
 from sklearn.metrics import roc_curve, auc
 from sklearn.model_selection import train_test_split
@@ -23,7 +26,8 @@ def xgb1():
     # 使用卡方过滤
     # model1 = SelectKBest(chi2, k=60)  # 60结果还不错
     # X = model1.fit_transform(X, Y)
-    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.75, random_state=4)
+    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.75, random_state=1)
+
     # 使用xgb
     ss = StandardScaler()
     x_train = ss.fit_transform(x_train)
@@ -31,11 +35,12 @@ def xgb1():
     print("==========start============")
 
     # xgbr = xgb.XGBClassifier(n_estimators=800,learning_rate=0.2,min_child_weight=1,max_depth=8,gamma=1,colsample_bytree=0.5,scale_pos_weight=1)
-    xgbr=xgb.XGBModel(n_estimators=800,learning_rate=0.2,min_child_weight=1,max_depth=8
+    xgbr=xgb.XGBClassifier(n_estimators=800,learning_rate=0.2,min_child_weight=1,max_depth=8
                       ,gamma=1,colsample_bytree=0.5,scale_pos_weight=1)
+
     xgbr.fit(x_train, y_train)
     y_predict = xgbr.predict(x_test)
-    print(classification_report(y_predict, y_test,digits=5))
+    print(classification_report(y_predict, y_test,digits=6))
     # print(xgbr.score(x_test,y_test))
     # precision, recall, thresholds = precision_recall_curve(
     # y_test, y_predict)
@@ -48,8 +53,27 @@ def xgb1():
     endtime = datetime.datetime.now()
     print(endtime - starttime)
     print("==========end============")
+
+    thresholds = sort(xgbr.feature_importances_)
+    for thresh in thresholds:
+        # if index<103:
+        #     index+=1
+        #     continue
+        # select features using threshold
+        selection = SelectFromModel(xgbr, threshold=thresh, prefit=True)
+        select_X_train = selection.transform(x_train)
+        # train model
+        selection_model = xgb.XGBClassifier(n_estimators=800,learning_rate=0.2,min_child_weight=1,max_depth=8
+                      ,gamma=1,colsample_bytree=0.5,scale_pos_weight=1)
+        selection_model.fit(select_X_train, y_train)
+        # eval model
+        select_X_test = selection.transform(x_test)
+        y_pred = selection_model.predict(select_X_test)
+        predictions = [round(value) for value in y_pred]
+        accuracy = accuracy_score(y_test, predictions)
+        print("Thresh=%.3f, n=%d, Accuracy: %.4f%%" % (thresh, select_X_train.shape[1], accuracy * 100.0))
+
     return
-    print()
     ##绘制roc曲线
     plt.figure("ROC Curve")
     fpr, tpr, threshold = roc_curve(y_test, y_predict)

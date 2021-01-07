@@ -6,6 +6,8 @@ import datetime
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from sklearn.decomposition import PCA
+from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
 from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import roc_curve, auc
@@ -31,16 +33,37 @@ def ml():
     x_train = ss.fit_transform(x_train)
     x_test = ss.transform(x_test)
     print("==========start============")
-    mlp = MLPClassifier(hidden_layer_sizes=(500),solver='sgd',momentum=0.8,validation_fraction=0.3,beta_1=0.4,beta_2=0.5,max_iter=3500,tol=0.00025,learning_rate='constant',alpha=0.002)
+    mlp = MLPClassifier(hidden_layer_sizes=(500,500,500),solver='sgd',momentum=0.8,validation_fraction=0.3,beta_1=0.4,beta_2=0.5,max_iter=3500,tol=0.00025,learning_rate='constant',alpha=0.002)
     # mlp = MLPClassifier(solver='lbfgs', alpha=1e-5, random_state=1, max_iter=1000)
+    # PCA
+    estimator = PCA(n_components=19)
+    x_train = estimator.fit_transform(x_train)
+    x_test = estimator.transform(x_test)
     mlp.fit(x_train, y_train)
     y_predict = mlp.predict(x_test)
     print(classification_report(y_predict, y_test,digits=5))
     # print(gbm.score(x_test,y_test))
-    y_proba = mlp.predict_proba(x_test)
+    # y_proba = mlp.predict_proba(x_test)
     print("==========end============")
     endtime = datetime.datetime.now()
     print(endtime - starttime)
+    return
+    for index in range(10,20):
+        # if index<103:
+        #     index+=1
+        #     continue
+        # select features using threshold
+        estimator = PCA(n_components=index)
+        select_X_train = estimator.fit_transform(x_train)
+        # train model
+        selection_model = MLPClassifier(hidden_layer_sizes=(500,500,500),solver='sgd',momentum=0.8,validation_fraction=0.3,beta_1=0.4,beta_2=0.5,max_iter=3500,tol=0.00025,learning_rate='constant',alpha=0.002)
+        selection_model.fit(select_X_train, y_train)
+        # eval model
+        select_X_test = estimator.transform(x_test)
+        y_pred = selection_model.predict(select_X_test)
+        # predictions = [round(value) for value in y_pred]
+        accuracy = accuracy_score(y_test, y_pred)
+        print("n=%d, Accuracy: %.4f%%" % (index, accuracy * 100.0))
     return
     # 绘制PR曲线
     precision, recall, thresholds = precision_recall_curve(
