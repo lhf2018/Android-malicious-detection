@@ -6,11 +6,7 @@ import numpy as np
 import pandas as pd
 import xgboost as xgb
 from matplotlib import pyplot as plt
-from numpy import sort
-from sklearn.feature_selection import SelectFromModel
-from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
-from sklearn.metrics import roc_curve, auc
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import validation_curve
 from sklearn.preprocessing import StandardScaler
@@ -35,7 +31,7 @@ def xgb1():
     print("==========start============")
 
     # xgbr = xgb.XGBClassifier(n_estimators=800,learning_rate=0.2,min_child_weight=1,max_depth=8,gamma=1,colsample_bytree=0.5,scale_pos_weight=1)
-    xgbr=xgb.XGBClassifier(n_estimators=800,learning_rate=0.2,min_child_weight=1,max_depth=8
+    xgbr=xgb.XGBClassifier(n_estimators=100,learning_rate=0.2,min_child_weight=1
                       ,gamma=1,colsample_bytree=0.5,scale_pos_weight=1)
 
     xgbr.fit(x_train, y_train)
@@ -52,42 +48,41 @@ def xgb1():
     # plt.show()
     endtime = datetime.datetime.now()
     print(endtime - starttime)
-    print("==========end============")
+    # print("==========end============")
+    #
+    # thresholds = sort(xgbr.feature_importances_)
+    # for thresh in thresholds:
+    #     # if index<103:
+    #     #     index+=1
+    #     #     continue
+    #     # select features using threshold
+    #     selection = SelectFromModel(xgbr, threshold=thresh, prefit=True)
+    #     select_X_train = selection.transform(x_train)
+    #     # train model
+    #     selection_model = xgb.XGBClassifier(n_estimators=800,learning_rate=0.2,min_child_weight=1,max_depth=8
+    #                   ,gamma=1,colsample_bytree=0.5,scale_pos_weight=1)
+    #     selection_model.fit(select_X_train, y_train)
+    #     # eval model
+    #     select_X_test = selection.transform(x_test)
+    #     y_pred = selection_model.predict(select_X_test)
+    #     predictions = [round(value) for value in y_pred]
+    #     accuracy = accuracy_score(y_test, predictions)
+    #     print("Thresh=%.3f, n=%d, Accuracy: %.4f%%" % (thresh, select_X_train.shape[1], accuracy * 100.0))
 
-    thresholds = sort(xgbr.feature_importances_)
-    for thresh in thresholds:
-        # if index<103:
-        #     index+=1
-        #     continue
-        # select features using threshold
-        selection = SelectFromModel(xgbr, threshold=thresh, prefit=True)
-        select_X_train = selection.transform(x_train)
-        # train model
-        selection_model = xgb.XGBClassifier(n_estimators=800,learning_rate=0.2,min_child_weight=1,max_depth=8
-                      ,gamma=1,colsample_bytree=0.5,scale_pos_weight=1)
-        selection_model.fit(select_X_train, y_train)
-        # eval model
-        select_X_test = selection.transform(x_test)
-        y_pred = selection_model.predict(select_X_test)
-        predictions = [round(value) for value in y_pred]
-        accuracy = accuracy_score(y_test, predictions)
-        print("Thresh=%.3f, n=%d, Accuracy: %.4f%%" % (thresh, select_X_train.shape[1], accuracy * 100.0))
-
-    return
     ##绘制roc曲线
-    plt.figure("ROC Curve")
-    fpr, tpr, threshold = roc_curve(y_test, y_predict)
-    plt.plot(fpr, tpr, color='darkorange')
-    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-    plt.xlabel('False positive rate')
-    plt.ylabel('True positive rate')
-    roc_auc = auc(fpr, tpr)
-    print(roc_auc)
-    plt.show()
-    return
+    # plt.figure("ROC Curve")
+    # fpr, tpr, threshold = roc_curve(y_test, y_predict)
+    # plt.plot(fpr, tpr, color='darkorange')
+    # plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    # plt.xlabel('False positive rate')
+    # plt.ylabel('True positive rate')
+    # roc_auc = auc(fpr, tpr)
+    # print(roc_auc)
+    # plt.show()
     # 绘制图像
-    param_range = np.arange(0, 5, 0.5)
-    train_scores, test_scores = validation_curve(xgbr, X, Y,param_name='scale_pos_weight', param_range=param_range, cv=10)
+    print("start ploting1--")
+    param_range = np.arange(1, 10, 1)
+    train_scores, test_scores = validation_curve(xgbr, X, Y,param_name='max_depth', param_range=param_range, cv=12)
     train_scores_mean = np.mean(train_scores, axis=1)
     train_scores_std = np.std(train_scores, axis=1)
     test_scores_mean = np.mean(test_scores, axis=1)
@@ -96,7 +91,7 @@ def xgb1():
     plt.title("Validation Curve with XGBOOST")
     plt.xlabel("$\gamma$")
     plt.ylabel("Score")
-    plt.xlabel("scale_pos_weight")
+    plt.xlabel("max_depth")
     plt.ylim(0.0, 1.1)
     plt.xticks(param_range)
     lw = 2
@@ -117,6 +112,7 @@ def xgb1():
                      test_scores_mean + test_scores_std, alpha=0.2,
                      color="navy", lw=lw)
     plt.legend(loc="best")
+    print("start ploting2--")
     plt.show()
 
 

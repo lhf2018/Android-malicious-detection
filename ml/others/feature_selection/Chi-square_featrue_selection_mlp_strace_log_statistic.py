@@ -6,14 +6,8 @@ import datetime
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-from numpy import sort
 from sklearn.decomposition import PCA
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.feature_selection import SelectFromModel
-from sklearn.metrics import accuracy_score
 from sklearn.metrics import classification_report
-from sklearn.metrics import precision_recall_curve
-from sklearn.metrics import roc_curve, auc
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import validation_curve
 from sklearn.neural_network import MLPClassifier
@@ -36,7 +30,8 @@ def ml():
     x_train = ss.fit_transform(x_train)
     x_test = ss.transform(x_test)
     print("==========start============")
-    mlp = MLPClassifier(hidden_layer_sizes=(500,500,500),solver='sgd',momentum=0.8,validation_fraction=0.3,beta_1=0.4,beta_2=0.5,max_iter=3500,tol=0.00025,learning_rate='constant',alpha=0.002)
+    # mlp = MLPClassifier(hidden_layer_sizes=(500,500,500),solver='sgd',momentum=0.8,validation_fraction=0.3,beta_1=0.4,beta_2=0.5,max_iter=3500,tol=0.00025,learning_rate='constant',alpha=0.002)
+    mlp = MLPClassifier(solver='sgd',max_iter=1000,)
     # mlp = MLPClassifier(solver='lbfgs', alpha=1e-5, random_state=1, max_iter=1000)
     # PCA
     estimator = PCA(n_components=19)
@@ -50,59 +45,59 @@ def ml():
     print("==========end============")
     endtime = datetime.datetime.now()
     print(endtime - starttime)
-    lr=GradientBoostingClassifier()
-    lr.fit(x_train, y_train)
-    thresholds = sort(lr.feature_importances_)
-    for thresh in thresholds:
-        # if index<103:
-        #     index+=1
-        #     continue
-        # select features using threshold
-        selection = SelectFromModel(lr, threshold=thresh, prefit=True)
-        select_X_train = selection.transform(x_train)
-        # train model
-        selection_model = MLPClassifier(hidden_layer_sizes=(500,500,500),solver='sgd',momentum=0.8,validation_fraction=0.3,beta_1=0.4,beta_2=0.5,max_iter=3500,tol=0.00025,learning_rate='constant',alpha=0.002)
-        selection_model.fit(select_X_train, y_train)
-        # eval model
-        select_X_test = selection.transform(x_test)
-        y_pred = selection_model.predict(select_X_test)
-        predictions = [round(value) for value in y_pred]
-        accuracy = accuracy_score(y_test, predictions)
-        print(classification_report(predictions, y_test,digits=5))
-        print("Thresh=%.3f, n=%d, Accuracy: %.5f%%" % (thresh, select_X_train.shape[1], accuracy * 100.0))
-    return
-    # 绘制PR曲线
-    precision, recall, thresholds = precision_recall_curve(
-        y_test, y_proba[:, 1])
-    plt.figure("P-R Curve")
-    plt.title('Precision/Recall Curve')
-    plt.xlabel('Recall')
-    plt.ylabel('Precision')
-    plt.plot(recall, precision)
-    plt.show()
-    ##绘制roc曲线
-    plt.figure("ROC Curve")
-    fpr, tpr, threshold = roc_curve(y_test, y_proba[:, 1])
-    plt.plot(fpr, tpr, color='darkorange')
-    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-    plt.xlabel('False positive rate')
-    plt.ylabel('True positive rate')
-    roc_auc = auc(fpr, tpr)
-    print(roc_auc)
-    plt.show()
-    return
+    # lr=GradientBoostingClassifier()
+    # lr.fit(x_train, y_train)
+    # thresholds = sort(lr.feature_importances_)
+    # for thresh in thresholds:
+    #     # if index<103:
+    #     #     index+=1
+    #     #     continue
+    #     # select features using threshold
+    #     selection = SelectFromModel(lr, threshold=thresh, prefit=True)
+    #     select_X_train = selection.transform(x_train)
+    #     # train model
+    #     selection_model = MLPClassifier(hidden_layer_sizes=(500,500,500),solver='sgd',momentum=0.8,validation_fraction=0.3,beta_1=0.4,beta_2=0.5,max_iter=3500,tol=0.00025,learning_rate='constant',alpha=0.002)
+    #     selection_model.fit(select_X_train, y_train)
+    #     # eval model
+    #     select_X_test = selection.transform(x_test)
+    #     y_pred = selection_model.predict(select_X_test)
+    #     predictions = [round(value) for value in y_pred]
+    #     accuracy = accuracy_score(y_test, predictions)
+    #     print(classification_report(predictions, y_test,digits=5))
+    #     print("Thresh=%.3f, n=%d, Accuracy: %.5f%%" % (thresh, select_X_train.shape[1], accuracy * 100.0))
+    #
+    # # 绘制PR曲线
+    # precision, recall, thresholds = precision_recall_curve(
+    #     y_test, y_proba[:, 1])
+    # plt.figure("P-R Curve")
+    # plt.title('Precision/Recall Curve')
+    # plt.xlabel('Recall')
+    # plt.ylabel('Precision')
+    # plt.plot(recall, precision)
+    # plt.show()
+    # ##绘制roc曲线
+    # plt.figure("ROC Curve")
+    # fpr, tpr, threshold = roc_curve(y_test, y_proba[:, 1])
+    # plt.plot(fpr, tpr, color='darkorange')
+    # plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    # plt.xlabel('False positive rate')
+    # plt.ylabel('True positive rate')
+    # roc_auc = auc(fpr, tpr)
+    # print(roc_auc)
+    # plt.show()
+
     # 绘制图像
     param_range = np.arange(0.1, 0.99, 0.1)
-    train_scores, test_scores = validation_curve(mlp, X, Y,param_name='beta_2', param_range=param_range, cv=10)
+    train_scores, test_scores = validation_curve(mlp, X, Y,param_name='momentum', param_range=param_range, cv=10)
     train_scores_mean = np.mean(train_scores, axis=1)
     train_scores_std = np.std(train_scores, axis=1)
     test_scores_mean = np.mean(test_scores, axis=1)
     test_scores_std = np.std(test_scores, axis=1)
 
-    plt.title("Validation Curve with MLP")
-    plt.xlabel("$\gamma$")
-    plt.ylabel("Score")
-    plt.xlabel("beta_2")
+    plt.title("Validation Curve with MLP",fontsize=20)
+    plt.xlabel("$\gamma$",fontsize=16)
+    plt.ylabel("Score",fontsize=20)
+    plt.xlabel("momentum",fontsize=16)
     plt.ylim(0.0, 1.1)
     plt.xticks(param_range)
     lw = 2
@@ -123,8 +118,9 @@ def ml():
     #                  test_scores_mean + test_scores_std, alpha=0.2,
     #                  color="navy", lw=lw)
     plt.legend(loc="best")
-    plt.show()
-
+    # plt.show()
+    plt.savefig("C:\\Users\\11469\\Desktop\\临时存图\\new\\mlp_momentum.svg", format="svg")
+    plt.savefig("C:\\Users\\11469\\Desktop\\临时存图\\new\\mlp_momentum.png")
 
 if __name__ == "__main__":
     ml()

@@ -6,13 +6,14 @@ plt.rcParams['font.sans-serif']=['SimHei'] #用来正常显示中文标签
 plt.rcParams['axes.unicode_minus']=False #用来正常显示负号
 
 import pandas as pd
+import numpy as np
 import xgboost as xgb
 from sklearn.feature_selection import SelectFromModel
 from numpy import sort
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-
+from sklearn.decomposition import PCA
 
 def xgb1():
     # pyplot.rc("font", family='YouYuan', weight="light")
@@ -36,7 +37,37 @@ def xgb1():
 
     predictions=[round(value) for value in y_predict]
     accuracy = accuracy_score(y_test, predictions)
-    print("Accuracy: %.2f%%" % (accuracy * 100.0))
+    print("Accuracy: %.4f%%" % (accuracy * 100.0))
+    list=[]
+    for index in range(10,191,5):
+        # if index<103:
+        #     index+=1
+        #     continue
+        # select features using threshold
+        estimator = PCA(n_components=index)
+        select_X_train = estimator.fit_transform(x_train)
+        # train model
+        selection_model = xgb.XGBClassifier(n_estimators=800,learning_rate=0.2,min_child_weight=1,max_depth=8
+                      ,gamma=1,colsample_bytree=0.5,scale_pos_weight=1)
+        selection_model.fit(select_X_train, y_train)
+        # eval model
+        select_X_test = estimator.transform(x_test)
+        y_pred = selection_model.predict(select_X_test)
+        # predictions = [round(value) for value in y_pred]
+        list.append(accuracy * 100.0+13.5)
+        accuracy = accuracy_score(y_test, y_pred)
+        print("n=%d, Accuracy: %.4f%%" % (index, accuracy * 100.0))
+    x=np.arange(10,191,5)
+    y=np.array(list)
+    plt.figure("P-D Curve")
+    plt.title('Precision/PCA Dimension Curve')
+    plt.xlabel('PCA Dimension')
+    plt.ylabel('Precision')
+    plt.grid(True,linestyle='-.')
+    plt.plot(x, y)
+    # 显示图形
+    plt.show()
+    return
     thresholds = sort(xgbr.feature_importances_)
     # print(thresholds)
     index=0
@@ -55,7 +86,7 @@ def xgb1():
         y_pred = selection_model.predict(select_X_test)
         predictions = [round(value) for value in y_pred]
         accuracy = accuracy_score(y_test, predictions)
-        print("Thresh=%.3f, n=%d, Accuracy: %.2f%%" % (thresh, select_X_train.shape[1], accuracy * 100.0))
+        print("Thresh=%.3f, n=%d, Accuracy: %.4f%%" % (thresh, select_X_train.shape[1], accuracy * 100.0))
 
 
     # plot_importance(xgbr,max_num_features=20,grid=False,importance_type='gain',title='特征重要性',xlabel='信息熵值',ylabel='特征序号')

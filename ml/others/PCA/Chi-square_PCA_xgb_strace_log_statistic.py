@@ -25,7 +25,7 @@ def xgb1():
     # 使用卡方过滤
     # model1 = SelectKBest(chi2, k=60)  # 60结果还不错
     # X = model1.fit_transform(X, Y)
-    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.75, random_state=3)
+    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.75, random_state=5)
 
     # 使用xgb
     ss = StandardScaler()
@@ -37,12 +37,16 @@ def xgb1():
     xgbr=xgb.XGBClassifier(n_estimators=800,learning_rate=0.2,min_child_weight=1,max_depth=8
                       ,gamma=1,colsample_bytree=0.5,scale_pos_weight=1)
     # PCA
+    startPCAtime = datetime.datetime.now()
     estimator = PCA(n_components=18)
     x_train = estimator.fit_transform(x_train)
     x_test = estimator.transform(x_test)
+    endPCAtime = datetime.datetime.now()
 
     xgbr.fit(x_train, y_train)
+    startdectecttime = datetime.datetime.now()
     y_predict = xgbr.predict(x_test)
+    enddectecttime = datetime.datetime.now()
     print(classification_report(y_predict, y_test,digits=6))
     # print(xgbr.score(x_test,y_test))
     # precision, recall, thresholds = precision_recall_curve(
@@ -55,6 +59,8 @@ def xgb1():
     # plt.show()
     endtime = datetime.datetime.now()
     print(endtime - starttime)
+    print(enddectecttime - startdectecttime)
+    print(endPCAtime - startPCAtime)
     print("==========end============")
     return
     for index in range(1,20):

@@ -27,26 +27,33 @@ def ml():
     # 使用卡方过滤
     # model1 = SelectKBest(chi2, k=2000)  # 60结果还不错
     # X = model1.fit_transform(X, Y)
-    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.75, random_state=2)
+    x_train, x_test, y_train, y_test = train_test_split(X, Y, train_size=0.75, random_state=1)
     # 使用xgb
     ss = StandardScaler()
     x_train = ss.fit_transform(x_train)
     x_test = ss.transform(x_test)
     print("==========start============")
+    starttraintime=datetime.datetime.now()
     mlp = MLPClassifier(hidden_layer_sizes=(500,500,500),solver='sgd',momentum=0.8,validation_fraction=0.3,beta_1=0.4,beta_2=0.5,max_iter=3500,tol=0.00025,learning_rate='constant',alpha=0.002)
     # mlp = MLPClassifier(solver='lbfgs', alpha=1e-5, random_state=1, max_iter=1000)
     # PCA
+    startPCAtime=datetime.datetime.now()
     estimator = PCA(n_components=19)
     x_train = estimator.fit_transform(x_train)
     x_test = estimator.transform(x_test)
+    endPCAtime = datetime.datetime.now()
     mlp.fit(x_train, y_train)
+    startdectecttime = datetime.datetime.now()
     y_predict = mlp.predict(x_test)
+    enddectecttime = datetime.datetime.now()
     print(classification_report(y_predict, y_test,digits=5))
     # print(gbm.score(x_test,y_test))
     # y_proba = mlp.predict_proba(x_test)
     print("==========end============")
     endtime = datetime.datetime.now()
-    print(endtime - starttime)
+    print(endtime - starttraintime)
+    print(enddectecttime - startdectecttime)
+    print(endPCAtime - startPCAtime)
     return
     for index in range(10,20):
         # if index<103:
